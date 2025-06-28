@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Life Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    img.avatar {
+      display: block;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+    }
+    .stat {
+      margin-bottom: 20px;
+    }
+    .stat label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .progress-container {
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 24px;
+      margin-bottom: 5px;
+    }
+    .progress-bar {
+      height: 24px;
+      background: #4caf50;
+      width: 0;
+      color: white;
+      text-align: center;
+      line-height: 24px;
+      transition: width 0.3s ease;
+    }
+    .stat input {
+      width: 80px;
+      margin-right: 10px;
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Life Tracker</h1>
+    <img class="avatar" src="https://i.pravatar.cc/120" alt="My Avatar" id="avatarImage" />
+
+    <div id="stats"></div>
+  </div>
+
+  <script>
+    // --- CONFIGURATION ---
+    const categories = [
+      "Physique",
+      "Singing",
+      "Instruments",
+      "Sports",
+      "Study"
+    ];
+
+    // --- INITIALIZE STATS ---
+    let stats = {};
+
+    // Load saved stats or initialize to zero
+    if (localStorage.getItem("lifeStats")) {
+      stats = JSON.parse(localStorage.getItem("lifeStats"));
+    } else {
+      categories.forEach(cat => {
+        stats[cat] = 0;
+      });
+    }
+
+    const statsContainer = document.getElementById("stats");
+
+    categories.forEach(category => {
+      // Create stat block
+      const div = document.createElement("div");
+      div.className = "stat";
+
+      // Label
+      const label = document.createElement("label");
+      label.textContent = category;
+      div.appendChild(label);
+
+      // Progress bar container
+      const progressContainer = document.createElement("div");
+      progressContainer.className = "progress-container";
+
+      const progressBar = document.createElement("div");
+      progressBar.className = "progress-bar";
+      progressBar.id = `bar-${category}`;
+      progressBar.textContent = stats[category];
+      progressContainer.appendChild(progressBar);
+
+      div.appendChild(progressContainer);
+
+      // Input + button
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.placeholder = "Add points";
+
+      const btn = document.createElement("button");
+      btn.textContent = "Add";
+
+      btn.addEventListener("click", () => {
+        const val = parseInt(input.value);
+        if (!isNaN(val)) {
+          stats[category] += val;
+          localStorage.setItem("lifeStats", JSON.stringify(stats));
+          updateProgress(category);
+          input.value = "";
+        }
+      });
+
+      div.appendChild(input);
+      div.appendChild(btn);
+
+      statsContainer.appendChild(div);
+      updateProgress(category);
+    });
+
+    function updateProgress(category) {
+      const bar = document.getElementById(`bar-${category}`);
+      const value = stats[category];
+      bar.style.width = Math.min(value * 5, 100) + "%"; // scale to max 100%
+      bar.textContent = value;
+    }
+  </script>
+</body>
+</html>
